@@ -1,0 +1,86 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+  Persistable = 0  'NotPersistable
+  DataBindingBehavior = 0  'vbNone
+  DataSourceBehavior  = 0  'vbNone
+  MTSTransactionMode  = 0  'NotAnMTSObject
+END
+Attribute VB_Name = "cls@NombreClase@"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = False
+Attribute VB_Exposed = False
+
+@Privates@
+Private strConsulta As String
+Private mvarObjetoTieneRegistros as Boolean
+Private mvarMensajeError as String
+Private Const CadConn as String = "@CadenaConn@"
+Private connDatos as ADODB.Connection
+
+Public Property Get ObjetoTieneRegistros() As Boolean
+'se usa al recuperar un valor de una propiedad, en la parte derecha de una asignación.
+'Syntax: Debug.Print X.ObjetoTieneRegistros
+    ObjetoTieneRegistros = mvarObjetoTieneRegistros
+End Property
+
+Public Property Get MensajeError() As String
+'se usa al recuperar un valor de una propiedad, en la parte derecha de una asignación.
+'Syntax: Debug.Print X.MensajeError
+    MensajeError = mvarMensajeError
+End Property
+
+@Propertys@
+
+Public Function Obtener@NombreClase@() As col@NombreClase@
+On Local Error GoTo er:
+Dim cmd As New ADODB.command
+Dim par As New ADODB.Parameter
+Dim strCamposBus As String
+Dim colResultado As New col@NombreClase@
+
+  strCamposBus = ""
+  strConsulta = ""
+  mvarMensajeError = ""
+  set connDatos = new ADODB.Connection
+  connDatos.Open CadConn 	
+  'coloca la conexion activa
+  cmd.ActiveConnection = connDatos
+
+  strConsulta = @SelectObtener@
+
+    @camposaparametrosSelect@
+
+'ejecutar la consulta
+If strCamposBus <> "" Then
+    strCamposBus = " where " & strCamposBus
+    'quita el ultimo and
+    strCamposBus = left(strCamposBus, Len(strCamposBus) - 3)
+    mvarObjetoTieneRegistros = True
+  Else
+    mvarObjetoTieneRegistros = False
+End If
+strConsulta = strConsulta & strCamposBus
+cmd.CommandText = strConsulta
+Set rsdGeneral = cmd.Execute(lngRegistrosAfec)
+Do Until rsdGeneral.EOF = True
+    mvarObjetoTieneRegistros = True
+    colResultado.Add @camposrecordset@
+    rsdGeneral.MoveNext
+Loop
+rsdGeneral.Close
+connDatos.Close
+Set Obtener@NombreClase@ = colResultado
+Set rsdGeneral = Nothing
+Set cmd = Nothing
+Set colResultado = Nothing
+Set connDatos = Nothing
+Exit Function
+er:
+mvarMensajeError = Err.Description
+Set rsdGeneral = Nothing
+Set cmd = Nothing
+Set colResultado = Nothing
+set connDatos = nothing
+End Function

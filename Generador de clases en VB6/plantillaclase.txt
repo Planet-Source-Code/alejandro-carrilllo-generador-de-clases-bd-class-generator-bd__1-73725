@@ -1,0 +1,197 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+  Persistable = 0  'NotPersistable
+  DataBindingBehavior = 0  'vbNone
+  DataSourceBehavior  = 0  'vbNone
+  MTSTransactionMode  = 0  'NotAnMTSObject
+END
+Attribute VB_Name = "cls@NombreClase@"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = False
+Attribute VB_Exposed = False
+
+@Privates@
+Private strConsulta As String
+Private mvarObjetoTieneRegistros as Boolean
+Private mvarMensajeError as String
+Private Const CadConn as String = "@CadenaConn@"
+Private connDatos as ADODB.Connection
+
+Public Property Get ObjetoTieneRegistros() As Boolean
+'se usa al recuperar un valor de una propiedad, en la parte derecha de una asignación.
+'Syntax: Debug.Print X.ObjetoTieneRegistros
+    ObjetoTieneRegistros = mvarObjetoTieneRegistros
+End Property
+
+Public Property Get MensajeError() As String
+'se usa al recuperar un valor de una propiedad, en la parte derecha de una asignación.
+'Syntax: Debug.Print X.MensajeError
+    MensajeError = mvarMensajeError
+End Property
+
+@Propertys@
+
+Public Function Obtener@NombreClase@() As col@NombreClase@
+On Local Error GoTo er:
+Dim cmd As New ADODB.command
+Dim par As New ADODB.Parameter
+Dim strCamposBus As String
+Dim colResultado As New col@NombreClase@
+
+  strCamposBus = ""
+  strConsulta = ""
+  mvarMensajeError = ""
+  set connDatos = new ADODB.Connection
+  connDatos.Open CadConn 	
+  'coloca la conexion activa
+  cmd.ActiveConnection = connDatos
+
+  strConsulta = @SelectObtener@
+
+  'llave
+
+  If @compararcamposllave@ Then
+    @camposllaveaparametrosSelect@
+  Else
+    @camposaparametrosSelect@
+  End If
+'ejecutar la consulta
+If strCamposBus <> "" Then
+    strCamposBus = " where " & strCamposBus
+    'quita el ultimo and
+    strCamposBus = left(strCamposBus, Len(strCamposBus) - 3)
+    mvarObjetoTieneRegistros = True
+  Else
+    mvarObjetoTieneRegistros = False
+End If
+strConsulta = strConsulta & strCamposBus
+cmd.CommandText = strConsulta
+Set rsdGeneral = cmd.Execute(lngRegistrosAfec)
+Do Until rsdGeneral.EOF = True
+    mvarObjetoTieneRegistros = True
+    colResultado.Add @camposrecordset@
+    rsdGeneral.MoveNext
+Loop
+rsdGeneral.Close
+connDatos.Close
+Set Obtener@NombreClase@ = colResultado
+Set rsdGeneral = Nothing
+Set cmd = Nothing
+Set colResultado = Nothing
+Set connDatos = Nothing
+Exit Function
+er:
+mvarMensajeError = Err.Description
+Set rsdGeneral = Nothing
+Set cmd = Nothing
+Set colResultado = Nothing
+set connDatos = nothing
+End Function
+
+Public Function Borrar@NombreClase@() As Boolean
+On Local Error GoTo er:
+Dim cmd As New ADODB.command
+Dim par As New ADODB.Parameter
+
+strCamposBus =""
+mvarMensajeError = ""
+Set connDatos = new ADODB.Connection
+  connDatos.Open CadConn 	
+  'coloca la conexion activa
+  cmd.ActiveConnection = connDatos
+
+strConsulta = "delete from @Tabla@ where "
+'llave
+  If @compararcamposllave@ Then
+     @camposllaveaparametrosSelect@
+
+  End If
+'foraneas, implementar en el generador de clases
+'ejecutar la consulta
+strCamposBus = left(strCamposBus, Len(strCamposBus) - 3)
+cmd.CommandText = strConsulta & strCamposBus
+cmd.Execute lngRegistrosAfec
+Borrar@NombreClase@ = True
+Set cmd = Nothing
+connDatos.Close
+Exit Function
+er:
+mvarMensajeError = Err.Description
+End Function
+
+Public Function Actualizar@NombreClase@() As Boolean
+On Local Error GoTo er:
+Dim cmd As New ADODB.command
+Dim par As New ADODB.Parameter
+
+mvarMensajeError = ""
+'coloca la conexion activa
+cmd.ActiveConnection = dbBase1
+
+strConsulta = "Update @Tabla@ set "
+'campos
+ @camposaparametrosUpdate@
+
+strConsulta = strConsulta & strCampos
+'esto impide una actualización de todos los registros
+strConsulta = left(strConsulta, Len(strConsulta) - 2)
+strConsulta = strConsulta & " where "
+'llave
+  If @compararcamposllave@ Then
+    @camposllaveaparametrosSelect@
+  End if
+  strCamposBus = left(strCamposBus, Len(strCamposBus) - 3)
+'ejecutar la consulta
+cmd.CommandText = strConsulta & strCamposBus
+cmd.Execute lngRegistrosAfec
+Actualizar@NombreClase@ = True
+connDatos.Close
+Set cmd = Nothing
+set connDatos = nothing
+Exit Function
+er:
+mvarMensajeError = Err.Description
+Set cmd = Nothing
+set connDatos = nothing
+End Function
+
+
+Public Function Insertar@NombreClase@() As Boolean
+On Local Error GoTo er:
+Dim strCampos As String, strValores As String
+Dim cmd As New ADODB.command
+Dim par As New ADODB.Parameter
+strCampos = ""
+strValores = ""
+
+mvarMensajeError = ""
+set connDatos = new ADODB.Connection
+  connDatos.Open CadConn 	
+  'coloca la conexion activa
+  cmd.ActiveConnection = connDatos
+
+strCampos = "Insert into @Tabla@ ("
+'campos
+
+@camposaparametrosInsert@
+
+strCampos = left(strCampos, Len(strCampos) - 1)
+strCampos = strCampos & ")"
+strValores = left(strValores, Len(strValores) - 1)
+strValores = " values (" & strValores & ")"
+'ejecutar la consulta
+strConsulta = strCampos & strValores
+cmd.CommandText = strConsulta
+cmd.Execute lngRegistrosAfec
+Set cmd = Nothing
+Insertar@NombreClase@ = True
+connDatos.Close
+set connDatos = nothing
+Exit Function
+er:
+mvarMensajeError = Err.Description
+Set cmd = Nothing
+set connDatos = nothing
+End Function

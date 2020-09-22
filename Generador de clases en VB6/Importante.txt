@@ -1,0 +1,4 @@
+El archivo plantillaclase.txt, plantillacoleccion.txt y plantillaSQL.txt deben acompañar al codigo
+o ejecutable en la misma carpeta ya que son las plantillas de la clases y sirven para elaborar y/o personalizar 
+la clases generadas.
+El objeto connection puede ser comentareado y usted puede colocar el objeto connection público de su preferencia.
